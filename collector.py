@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import sqlite3
 import time
 
@@ -31,4 +31,17 @@ def create():
 	con.commit()
 	con.close()
 	return ("",200)
+
+@app.route("/show", methods=['GET'])
+def show():
+	con = sqlite3.connect("metrics.db")
+	cursor = con.cursor()
+	response = []
+	start = request.args.get("start", 0) 
+	stop = request.args.get("stop", time.time())
+	for row in cursor.execute(f"SELECT * FROM metrics WHERE received >=? AND received <=? ORDER BY received ASC",(start, stop)):
+		response.append({"label": row[0],"chip": row[1],"received": row[2], "value": row[3]})
+	con.commit()
+	con.close()
+	return jsonify(response)
 	
