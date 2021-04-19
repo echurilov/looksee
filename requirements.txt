@@ -1,1 +1,3 @@
 PySensors
+matplotlib
+numpy
