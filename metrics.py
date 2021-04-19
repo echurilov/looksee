@@ -18,5 +18,8 @@ while True:
 	finally:
 		sensors.cleanup()
 
-	requests.post('http://localhost:8000',json = metrics)
+	try:
+		requests.post('http://localhost:5000/new', headers={"Date": str(time.time())}, json = metrics)
+	except requests.exceptions.ConnectionError as e:
+		print(e)
 	time.sleep(10)
