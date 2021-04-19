@@ -41,14 +41,17 @@ def show():
 	stop = request.args.get("stop", time.time())
 	label = request.args.get("label", "%")
 	chip = request.args.get("chip", "%")
+	limit = int(request.args.get("limit", 10))
+	page = (int(request.args.get("page", 1))-1)*limit
 	for row in cursor.execute(
 		"""SELECT * FROM metrics 
 		WHERE received >= ? 
 		AND received <= ? 
 		AND label LIKE ? 
-		AND chip LIKE ? 
-		ORDER BY received ASC""",
-		(start, stop, label, chip)):
+		AND chip LIKE ?
+		ORDER BY received DESC
+		LIMIT ?, ?;""",
+		(start, stop, label, chip, page, limit)):
 		response.append({"label": row[0],"chip": row[1],"received": row[2], "value": row[3]})
 	con.commit()
 	con.close()
