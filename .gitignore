@@ -1,3 +1,5 @@
 bin
 lib
 pyvenv.cfg
+metrics.db
+__pycache__/
