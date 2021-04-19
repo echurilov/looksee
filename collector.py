@@ -39,7 +39,16 @@ def show():
 	response = []
 	start = request.args.get("start", 0) 
 	stop = request.args.get("stop", time.time())
-	for row in cursor.execute(f"SELECT * FROM metrics WHERE received >=? AND received <=? ORDER BY received ASC",(start, stop)):
+	label = request.args.get("label", "%")
+	chip = request.args.get("chip", "%")
+	for row in cursor.execute(
+		"""SELECT * FROM metrics 
+		WHERE received >= ? 
+		AND received <= ? 
+		AND label LIKE ? 
+		AND chip LIKE ? 
+		ORDER BY received ASC""",
+		(start, stop, label, chip)):
 		response.append({"label": row[0],"chip": row[1],"received": row[2], "value": row[3]})
 	con.commit()
 	con.close()
