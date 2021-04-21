@@ -1,23 +1,21 @@
-from flask import Flask, request
+from flask import Flask, request, Response
 from io import StringIO
 import matplotlib.pyplot as plt
 import numpy as np
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
-@app.route("/graph", methods=['POST'])
+@app.route("/graph", methods=['GET'])
 def graph():
-	data = request.get_json()
-	print(data)
 	fig, ax = plt.subplots()
-	for name in data["series"]:
+	for name in request.args:
+		line = request.args[name].split(';')
+		points = [point.split(',') for point in line]
 		ax.plot(
-			[datum[0] for datum in data["series"][name]],
-			[datum[1] for datum in data["series"][name]]
+			[point[0] for point in points],
+			[point[1] for point in points]
 		)
 	output = StringIO()
 	fig.savefig(output,format="svg")
 	output.seek(0)
-	return output.getvalue()
+	return Response(output.getvalue(), mimetype = "image/svg+xml")

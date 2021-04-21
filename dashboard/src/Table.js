@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
-
 let db = "http://localhost:5000"
 
 async function getData(event) {
   let form = new FormData(event.target.form)
   let cleanForm = Array.from(form).filter(([_,v]) => v!=="")  
   let params = new URLSearchParams(cleanForm)
-  await fetch(`${db}/show?${params}`)
+  let response = await fetch(`${db}/show?${params}`)
+  console.table(await response.json())
 }
 
 function Table() {
@@ -20,7 +19,10 @@ function Table() {
           <label>End<input type="datetime-local" name="end" onChange={getData}/></label>
         </fieldset>
       </form>
-      <table><tr><td></td></tr></table>
+      <table><tr><td>
+        <img src="http://127.0.0.1:7777/graph?Vcore=1,2;2,4;4,8&temp1=1,6;2,8;4,10"/>
+        </td></tr>
+      </table>
     </div>
   );
 }
