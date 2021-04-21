@@ -15,7 +15,7 @@ def index():
 	cursor = con.cursor()
 	output = ""
 	for row in cursor.execute(f"SELECT * FROM metrics ORDER BY received ASC"):
-		output = output + str(row) + "\n"
+		output += str(row) + "\n"
 	con.close()
 	return output
 
@@ -43,7 +43,7 @@ def show():
 	chip = request.args.get("chip", "%")
 	limit = int(request.args.get("limit", 10))
 	page = (int(request.args.get("page", 1))-1)*limit
-	for row in cursor.execute(
+	for (label,chip,received,value) in cursor.execute(
 		"""SELECT * FROM metrics 
 		WHERE received >= ? 
 		AND received <= ? 
@@ -52,8 +52,9 @@ def show():
 		ORDER BY received DESC
 		LIMIT ?, ?;""",
 		(start, stop, label, chip, page, limit)):
-		response.append({"label": row[0],"chip": row[1],"received": row[2], "value": row[3]})
+		response.append({"label": label,"chip": chip,"received": received, "value": value})
 	con.commit()
 	con.close()
-	return jsonify(response)
-	
+	res = jsonify(response)
+	res.headers.add('Access-Control-Allow-Origin', '*')
+	return res
