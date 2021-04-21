@@ -1,3 +1,4 @@
 PySensors
 matplotlib
 numpy
+flask_cors
