@@ -1,28 +1,48 @@
+import { useState } from 'react';
+import _ from 'lodash';
+
 let db = "http://localhost:5000"
+let graph = "http://localhost:7777/graph"
+
+function ISOdate(seconds) {
+  return new Date(seconds*1000).toISOString()
+}
 
 async function getData(event) {
   let form = new FormData(event.target.form)
   let cleanForm = Array.from(form).filter(([_,v]) => v!=="")  
   let params = new URLSearchParams(cleanForm)
   let response = await fetch(`${db}/show?${params}`)
-  console.table(await response.json())
+  return await response.json()
+}
+
+function graphURL(data) {
+  let groupedData = _.groupBy(data, a => [a.chip, a.label])
+  let series = Object.entries(groupedData).map(([k,v]) => {
+    let query = v.map(a => `${ISOdate(a.received)},${a.value}`).join(';')
+    return k+'='+query
+  })
+  return `${graph}?${series.join("&")}`
 }
 
 function Table() {
+  let [data, setData] = useState([])
+
+  async function updateData(event) { setData(await getData(event)) }
+
   return (
     <div className="Table">
       <form>
         <fieldset>
-          <label>Chip<input name="chip" onChange={getData} /></label>
-          <label>Label<input name="label" onChange={getData}/></label>
-          <label>Start<input type="datetime-local" name="start" onChange={getData}/></label>
-          <label>End<input type="datetime-local" name="end" onChange={getData}/></label>
+          <label>Chip<input name="chip" onChange={updateData} /></label>
+          <label>Label<input name="label" onChange={updateData}/></label>
+          <label>Start<input type="datetime-local" name="start" onChange={updateData}/></label>
+          <label>End<input type="datetime-local" name="end" onChange={updateData}/></label>
         </fieldset>
       </form>
-      <table><tr><td>
-        <img src="http://127.0.0.1:7777/graph?Vcore=1,2;2,4;4,8&temp1=1,6;2,8;4,10"/>
-        </td></tr>
-      </table>
+      <table><tbody><tr><td>
+        <img alt="mr" src={graphURL(data)}/>
+      </td></tr></tbody></table>
     </div>
   );
 }
