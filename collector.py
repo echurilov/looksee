@@ -41,7 +41,7 @@ def show():
 	stop = request.args.get("stop", time.time())
 	label = request.args.get("label", "%")
 	chip = request.args.get("chip", "%")
-	limit = int(request.args.get("limit", 10))
+	limit = int(request.args.get("limit", 100))
 	page = (int(request.args.get("page", 1))-1)*limit
 	for (label,chip,received,value) in cursor.execute(
 		"""SELECT * FROM metrics 
