@@ -9,15 +9,20 @@ app = Flask(__name__)
 def graph():
 	fig, ax = plt.subplots()
 	for name in request.args:
+		if not request.args[name]:
+			continue
 		line = request.args[name].split(';')
 		points = [point.split(',') for point in line]
 		ax.plot(
 			np.array([point[0] for point in points],dtype=np.datetime64),
-			[point[1] for point in points]
+			np.array([point[1] for point in points],dtype=np.float32),
+			label = name
 		)
-	ax.set_xlabel('Time')
 	fig.autofmt_xdate()
+	ax.set_xlabel('Time')
 	ax.set_title('Data')
+	ax.legend(bbox_to_anchor = (1.01, .6))
+	plt.tight_layout()
 	ax.grid(True)
 	output = StringIO()
 	fig.savefig(output,format="svg")
