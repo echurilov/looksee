@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/graph", methods=['GET'])
 def graph():
-	fig, ax = plt.subplots()
+	fig, ax = plt.subplots(figsize=(11,6))
 	for name in request.args:
 		if not request.args[name]:
 			continue
@@ -22,8 +22,8 @@ def graph():
 	ax.set_xlabel('Time')
 	ax.set_title('Data')
 	ax.legend(bbox_to_anchor = (1.01, .6))
-	plt.tight_layout()
 	ax.grid(True)
+	plt.tight_layout()
 	output = StringIO()
 	fig.savefig(output,format="svg")
 	output.seek(0)
